@@ -31,20 +31,27 @@ const showImages = (images) => {
 const getImages = (query) => {
   fetch(`https://pixabay.com/api/?key=${KEY}=${query}&image_type=photo&pretty=true`)
     .then(response => response.json())
-    .then(data => showImages(data.hitS))
+    .then(data => showImages(data.hits)) // bug 'hitS' is to be 'hits'
     .catch(err => console.log(err))
 }
+
+// search on enter key press
+document.getElementById('search').addEventListener('keypress', event => {
+  if(event.key === 'Enter'){
+    document.getElementById('search-btn').click();
+  }
+})
 
 let slideIndex = 0;
 const selectItem = (event, img) => {
   let element = event.target;
-  element.classList.add('added');
+  element.classList.toggle('added'); // use 'toggle' instead of 'add' to toggle select style class 'added'
  
   let item = sliders.indexOf(img);
   if (item === -1) {
     sliders.push(img);
   } else {
-    alert('Hey, Already added !')
+    sliders.splice(item, 1); // remove the unselected image from the 'sliders' array
   }
 }
 var timer
@@ -54,6 +61,14 @@ const createSlider = () => {
     alert('Select at least 2 image.')
     return;
   }
+
+  // get duration text, convert it to number, check if it is negative and work accordingly
+  const durationInput = +document.getElementById('duration').value;
+  if(durationInput < 0){ 
+    alert('Time can not be negative! Give valid time input.');
+    return;
+  }
+
   // crate slider previous next area
   sliderContainer.innerHTML = '';
   const prevNext = document.createElement('div');
@@ -67,7 +82,7 @@ const createSlider = () => {
   document.querySelector('.main').style.display = 'block';
   // hide image aria
   imagesArea.style.display = 'none';
-  const duration = document.getElementById('duration').value || 1000;
+  const duration = durationInput || 1000;
   sliders.forEach(slide => {
     let item = document.createElement('div')
     item.className = "slider-item";
