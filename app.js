@@ -1,3 +1,6 @@
+// new features
+// view image, zooming, rotation, caption, safe search, play-pause for slider
+
 const imagesArea = document.querySelector('.images');
 const gallery = document.querySelector('.gallery');
 const galleryHeader = document.querySelector('.gallery-header');
@@ -25,22 +28,16 @@ const showImages = (images) => {
     div.innerHTML = ` <img class="img-fluid img-thumbnail" onclick=selectItem(event,"${image.webformatURL}") src="${image.webformatURL}" alt="${image.tags}">`;
     gallery.appendChild(div)
   })
-
+  toggleSpinner(); // hide spinner after loading data
 }
 
 const getImages = (query) => {
+  toggleSpinner(); // show spinner on data load time
   fetch(`https://pixabay.com/api/?key=${KEY}=${query}&image_type=photo&pretty=true`)
     .then(response => response.json())
     .then(data => showImages(data.hits)) // bug 'hitS' is to be 'hits'
     .catch(err => console.log(err))
 }
-
-// search on enter key press
-document.getElementById('search').addEventListener('keypress', event => {
-  if(event.key === 'Enter'){
-    document.getElementById('search-btn').click();
-  }
-})
 
 let slideIndex = 0;
 const selectItem = (event, img) => {
@@ -124,6 +121,14 @@ const changeSlide = (index) => {
   items[index].style.display = "block"
 }
 
+// search on enter key press
+document.getElementById('search').addEventListener('keypress', event => {
+  if(event.key === 'Enter'){
+    searchBtn.click();
+  }
+})
+
+// search button
 searchBtn.addEventListener('click', function () {
   document.querySelector('.main').style.display = 'none';
   clearInterval(timer);
@@ -135,3 +140,11 @@ searchBtn.addEventListener('click', function () {
 sliderBtn.addEventListener('click', function () {
   createSlider()
 })
+
+// spinner show / hide
+const toggleSpinner = () => {
+  const spinner = document.getElementById('loading-spinner');
+  spinner.classList.toggle('d-none');
+  const images = document.getElementById('image-container');
+  images.classList.toggle('d-none');
+}
