@@ -1,6 +1,3 @@
-// new features
-// view image, zooming, rotation, caption, safe search, play-pause for slider
-
 const imagesArea = document.querySelector('.images');
 const gallery = document.querySelector('.gallery');
 const galleryHeader = document.querySelector('.gallery-header');
@@ -9,6 +6,11 @@ const sliderBtn = document.getElementById('create-slider');
 const sliderContainer = document.getElementById('sliders');
 // selected image 
 let sliders = [];
+// pause slider
+let pause = false;
+let slideIndex = 0;
+var timer = null;
+let duration = 1000;
 
 
 // If this key doesn't work
@@ -39,7 +41,6 @@ const getImages = (query) => {
     .catch(err => console.log(err))
 }
 
-let slideIndex = 0;
 const selectItem = (event, img) => {
   let element = event.target;
   element.classList.toggle('added'); // use 'toggle' instead of 'add' to toggle select style class 'added'
@@ -51,7 +52,7 @@ const selectItem = (event, img) => {
     sliders.splice(item, 1); // remove the unselected image from the 'sliders' array
   }
 }
-var timer
+
 const createSlider = () => {
   // check slider image length
   if (sliders.length < 2) {
@@ -79,21 +80,46 @@ const createSlider = () => {
   document.querySelector('.main').style.display = 'block';
   // hide image aria
   imagesArea.style.display = 'none';
-  const duration = durationInput || 1000;
+  duration = durationInput || 1000;
   sliders.forEach(slide => {
     let item = document.createElement('div')
     item.className = "slider-item";
-    item.innerHTML = `<img class="w-100"
-    src="${slide}"
-    alt="">`;
+    item.innerHTML = `<img class="w-100" src="${slide}" alt="">`;
     sliderContainer.appendChild(item)
   })
-  changeSlide(0)
-  timer = setInterval(function () {
-    slideIndex++;
-    changeSlide(slideIndex);
-  }, duration);
+  changeSlide(0);
+  playPause();
 }
+
+// play / pause function
+const playPause = () => {
+  if(pause === false){
+    timer = setInterval(function () {
+      slideIndex++;
+      changeSlide(slideIndex);
+    }, duration);
+  }
+  else{
+    // stop 
+    clearInterval(timer);
+    timer = null;
+  }
+}
+
+// play / pause button event handler
+document.getElementById('pause-play-btn').addEventListener('click', event => {
+  const playPauseText = event.target.innerText;
+  if(playPauseText === 'Pause'){
+    pause = true;
+    event.target.innerText = 'Play';
+    playPause();
+  }
+  else{
+    pause = false;
+    event.target.innerText = 'Pause';
+    playPause();
+  }
+})
 
 // change slider index 
 const changeItem = index => {
@@ -118,7 +144,7 @@ const changeSlide = (index) => {
     item.style.display = "none"
   })
 
-  items[index].style.display = "block"
+  items[index].style.display = "block" 
 }
 
 // search on enter key press
